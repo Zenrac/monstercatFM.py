@@ -74,7 +74,7 @@ class Client():
                 if current != self.now_playing: # ignore if we already have the info
                     self.now_playing = current 
                     await self.handler(current)
-                await asyncio.sleep(1)  # get info every sec, I don't know if it is useful / if I should put more
+                await asyncio.sleep(5)  # get info every sec, I don't know if it is useful / if I should put more
                                         # and I don't even know if using a aiohttp.get loop is a good idea
                                         # I tried to use websocket and socket.io, in vain. (lack of skills/knowledges ?)
             else:
