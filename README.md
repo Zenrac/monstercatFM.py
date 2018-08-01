@@ -27,7 +27,7 @@ import monstercat
 mc = monstercat.Client() # Can specify a loop if needed
 
 to_run = mc.get_current_track()
-msg = mc.loop.run_until_complete()
+msg = mc.loop.run_until_complete(to_run)
 
 print("New song : {} by {}".format(msg[0], msg[1])) 
 ```
@@ -48,4 +48,4 @@ for i, song in enumerate(msg, start=1):
 #### Notes:
 - If the loop is already running, replace ```run_until_complete(to_run)``` with <br>
 ```mc.loop.create_task(to_run)```<br>
-- Value accepted to get old tracks are : 15, 25, 50, 100 (default is 15)
+- Value accepted to get old tracks are : `15, 25, 50, 100` (default is `15`)
