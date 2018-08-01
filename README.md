@@ -1,5 +1,5 @@
 # monstercatFM.py
-Unofficial shitty API wrapper to get informations about the monstercat live stream using TheAkio website (https://mctl.io/) <br>
+Unofficial shitty API wrapper to get informations about the monstercat live stream using [TheAkio website](https://mctl.io/) and [aiohttp](https://github.com/aio-libs/aiohttp)<br>
 I'm a python beginner, I don't really know what I'm doing, your contributions are gladly accepted.<br><br>
 ### Examples: <br>
 Handler to get the current song<br>
