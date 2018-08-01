@@ -46,6 +46,6 @@ for i, song in enumerate(msg, start=1):
     print("{} - {} by {}".format(i, song[0], song[1])) 
 ```
 #### Notes:
-If the loop is already running, replace ```run_until_complete(to_run)``` with <br>
+- If the loop is already running, replace ```run_until_complete(to_run)``` with <br>
 ```mc.loop.create_task(to_run)```<br>
-Value accepted to get old tracks are : 15, 25, 50, 100 (default is 15)
+- Value accepted to get old tracks are : 15, 25, 50, 100 (default is 15)
