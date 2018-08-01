@@ -4,7 +4,8 @@ I'm a python beginner, I don't really know what I'm doing, your contributions ar
 ### Requirements: <br>
 - Python3+<br>
 - [aiohttp](https://github.com/aio-libs/aiohttp) <br>
-- asyncio
+- asyncio<br>
+- bs4
 ### Examples: <br>
 Handler to get the current song<br>
 ```py
