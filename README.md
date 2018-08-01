@@ -7,7 +7,7 @@ I'm a python beginner, I don't really know what I'm doing, your contributions ar
 - asyncio<br>
 - bs4
 ### Examples: <br>
-Handler to get the current song<br>
+Handler to get the current song forever<br>
 ```py
 import asyncio
 import monstercat
