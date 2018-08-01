@@ -1,6 +1,10 @@
 # monstercatFM.py
 Unofficial shitty API wrapper to get informations about the monstercat live stream using [TheAkio website](https://mctl.io/) and [aiohttp](https://github.com/aio-libs/aiohttp)<br>
 I'm a python beginner, I don't really know what I'm doing, your contributions are gladly accepted.<br><br>
+### Requirements: <br>
+- Python3+<br>
+- [aiohttp](https://github.com/aio-libs/aiohttp) <br>
+- asyncio
 ### Examples: <br>
 Handler to get the current song<br>
 ```py
@@ -41,7 +45,6 @@ msg = mc.loop.run_until_complete(to_run)
 for i, song in enumerate(msg, start=1):
     print("{} - {} by {}".format(i, song[0], song[1])) 
 ```
-<br><br>
 #### Notes:
 If the loop is already running, replace ```run_until_complete(to_run)``` with <br>
 ```mc.loop.create_task(to_run)```<br>
