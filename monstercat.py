@@ -62,7 +62,7 @@ class Client():
         return result[1:]    
         
     async def get_duration(self, text):
-        """Gets duration from HTML with BeatifulSoup"""
+        """Gets duration from HTML with BeautifulSoup"""
         text = BeautifulSoup(text, 'lxml')
         text = text.find(id="duration")
         return int(text.text)
