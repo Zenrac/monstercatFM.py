@@ -2,6 +2,7 @@ import aiohttp
 import asyncio
 
 from bs4 import BeautifulSoup
+from typing import Dict
 
 class Client():
     def __init__(self, loop=None):
