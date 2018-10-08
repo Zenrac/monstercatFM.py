@@ -8,8 +8,8 @@ setup(
     author = 'Zenrac',
     author_email = 'zenrac@outlook.fr',
     url = 'https://github.com/Zenrac/monstercatFM',
-    download_url = 'https://github.com/Zenrac/TextToOwO/archive/v1.1.2.tar.gz',
+    download_url = 'https://github.com/Zenrac/monstercatFM/archive/v1.0.1.tar.gz',
     keywords = ['MonstercatFM', 'Monstercat live stream', 'MCTL'],
     include_package_data=True,
-    install_requires=['beautifulsoup4', 'aiohttp']
+    install_requires=['beautifulsoup4', 'aiohttp', 'asyncio']
 )
