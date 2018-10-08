@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name = 'monstercatFM',
     packages = ['monstercatFM'],
-    version = 'v1.0',
+    version = 'v1.0.1',
     description = 'Unofficial shitty API wrapper to get information about the monstercat live stream',
     author = 'Zenrac',
     author_email = 'zenrac@outlook.fr',
