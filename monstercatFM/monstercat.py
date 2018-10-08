@@ -2,11 +2,10 @@ import aiohttp
 import asyncio
 
 from bs4 import BeautifulSoup
-from typing import Dict
 
 class Client():
     def __init__(self, loop=None):
-        self._headers: Dict[str, str] = {
+        self._headers = {
             "User-Agent": "monstercatFM (https://github.com/Zenrac/monstercatFM)",
             "Content-Type": "application/json",
         }     
