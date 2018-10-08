@@ -4,11 +4,11 @@ I'm a python beginner, I don't really know what I'm doing, your contributions ar
 ## Installation
 ### Using pip
 ```
-pip install TextToOwO
+pip install monstercatFM
 ```
 ### Using git
 ```
-pip install git+https://github.com/Zenrac/OwO-Translator
+pip install git+https://github.com/Zenrac/monstercatFM
 ```
 
 ### Requirements: <br>
