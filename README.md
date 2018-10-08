@@ -4,11 +4,11 @@ I'm a python beginner, I don't really know what I'm doing, your contributions ar
 ## Installation
 ### Using pip
 ```
-pip install monstercatFM
+pip install TextToOwO
 ```
 ### Using git
 ```
-pip install git+https://github.com/Zenrac/monstercatFM
+pip install git+https://github.com/Zenrac/OwO-Translator
 ```
 
 ### Requirements: <br>
@@ -20,7 +20,7 @@ pip install git+https://github.com/Zenrac/monstercatFM
 Handler to get the current song forever<br>
 ```py
 import asyncio
-import monstercat
+from monstercatFM import monstercat
 
 async def hand(msg):
     print("New song : {} by {}".format(msg[0], msg[1]))  
@@ -33,7 +33,7 @@ mc.loop.create_task(to_run)
 ```
 Gets the current song only<br>
 ```py
-import monstercat
+from monstercatFM import monstercat
 
 mc = monstercat.Client() # Can specify a loop if needed
 
@@ -44,7 +44,7 @@ print("New song : {} by {}".format(msg[0], msg[1]))
 ```
 Gets old already played tracks <br>
 ```py
-import monstercat
+from monstercatFM import monstercat
 
 requested_tracks = 50
 
