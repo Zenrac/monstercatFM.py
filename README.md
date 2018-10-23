@@ -1,5 +1,5 @@
 # monstercatFM
-Unofficial shitty API wrapper to get information about the monstercat live stream using [TheAkio's website (MCTL)](https://mctl.io/) and [aiohttp](https://github.com/aio-libs/aiohttp)<br>
+Unofficial Async shitty API wrapper to get information about the monstercat live stream using [TheAkio's website (MCTL)](https://mctl.io/) and [aiohttp](https://github.com/aio-libs/aiohttp)<br>
 I'm a python beginner, I don't really know what I'm doing, your contributions are gladly accepted.<br><br>
 ## Installation
 ### Using pip
