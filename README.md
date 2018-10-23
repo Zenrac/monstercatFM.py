@@ -37,7 +37,7 @@ from monstercatFM import monstercat
 
 mc = monstercat.Client() # Can specify a loop if needed
 
-to_run = mc.get_current_track()
+to_run = mc.get_current_song()
 msg = mc.loop.run_until_complete(to_run)
 
 print("New song : {} by {}".format(msg[0], msg[1])) 
