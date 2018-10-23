@@ -1,6 +1,7 @@
 import aiohttp
 import asyncio
 
+from time import time as current_time
 from bs4 import BeautifulSoup
 
 class Client():
@@ -13,9 +14,8 @@ class Client():
         self.handler = None
         self._loop = loop or asyncio.get_event_loop()
         self.now_playing = None
-        self.ready = False
-        self.counter = 0
-        
+        self.run = False
+
     @property
     def loop(self) -> asyncio.AbstractEventLoop:
         return self._loop    
@@ -35,13 +35,13 @@ class Client():
                     text = text.find_all("tr")
                     result = []
                     for tex in text:
-                        result.append(tex.text.replace('\n', '|'))
+                        result.append(tex.text)
                     results = result[1:]  
                     
                     data = []
                     for res in results:
                         ordered = []
-                        occs = res.split('|')
+                        occs = res.split('\n')
                         for occ in occs:
                             if occ and ('http' not in occ and not occ[1:2].isdigit()):
                                 ordered.append(occ)
@@ -66,7 +66,22 @@ class Client():
         text = BeautifulSoup(text, 'lxml')
         text = text.find(id="duration")
         return int(text.text)
+
+    async def is_not_sync(self, text):
+        """Returns diff between current time and when the song started"""
+        text = BeautifulSoup(text, 'lxml')
+        text = text.find(id="time")
+        time = current_time() - (int(text.attrs['time'])/1000) # ms in html whereas time() is in s
+        time -= 25 # don't know why but it always gives about 30 secs before the song started
+        return time
             
+    async def get_current_song(self):
+        """Fonct to get the current song only"""
+        if self.run:
+            return self.now_playing 
+        song = await self.get_current_track()
+        return song[0]
+
     async def get_current_track(self):
         """Gets the current track informations"""    
         async with aiohttp.ClientSession(headers=self._headers) as session:
@@ -74,30 +89,21 @@ class Client():
                 if resp.status == 200:
                     text = await resp.read()
                     duration = await self.get_duration(text)
+                    sync = await self.is_not_sync(text)
                     data = await self.transform_html(text)
-                    return data, duration
+                    return data, duration, sync
 
     async def start(self):
-        while True:
+        while self.run:
             if self.handler:
-                current, duration = await self.get_current_track()
+                current, duration, sync = await self.get_current_track()
                 if current != self.now_playing: # ignore if we already have the info
-                    before = self.now_playing # don't wait if before was None (during first loop)
                     self.now_playing = current 
                     await self.handler(current)
-                    if before:
-                        self.ready = True
-                        self.counter = 0
-                        time = min((duration/1000), 600) # can't be more than 10 mins, I think
-                        time -= 2 # Better finishing before song update
-                        await asyncio.sleep(time)
-                if self.ready:                   
-                    if self.counter >= 1: # Wow, already made 10 requests ? Calm down. 
-                        time = min(3, self.counter)
-                    else:
-                        time = 0.1
-                        self.counter += time                       
-                    await asyncio.sleep(time) 
+                    time = min((duration/1000), 600) # can't be more than 10 mins, I think
+                    if sync > 0:
+                        time -= sync # re-sync if needed
+                    await asyncio.sleep(time)
                 else:
                     await asyncio.sleep(1) # get info every sec until we are sync with songs durations etc... 
             else:
@@ -108,4 +114,10 @@ class Client():
 
     def register_handler(self, handler):
         """Registers a function handler to allow you to do something with the socket API data"""
-        self.handler = handler     
+        self.run = True
+        self.handler = handler
+
+    def switch_on_off(self):
+        """Switch on or off the handler loop, returns current state"""
+        self.run = not self.run
+        return self.run
