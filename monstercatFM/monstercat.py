@@ -4,12 +4,13 @@ import asyncio
 from time import time as current_time
 from bs4 import BeautifulSoup
 
+
 class Client():
     def __init__(self, loop=None):
         self._headers = {
             "User-Agent": "monstercatFM (https://github.com/Zenrac/monstercatFM)",
             "Content-Type": "application/json",
-        }     
+        }
         self.url = "https://mctl.io/"
         self.handler = None
         self._loop = loop or asyncio.get_event_loop()
@@ -18,26 +19,26 @@ class Client():
 
     @property
     def loop(self) -> asyncio.AbstractEventLoop:
-        return self._loop    
+        return self._loop
 
     async def get_old_tracks(self, nb=None):
         """Gets previous tracks, can load 15, 25, 50 or 100 tracks other number returns 15."""
         if nb in [25, 50, 100]:
-            url = self.url + "?l={}".format(nb) # f-string only supported on py3.6+
+            url = self.url + "?l={}".format(nb)  # f-string only supported on py3.6+
         else:
-            url = self.url 
-        
+            url = self.url
+
         async with aiohttp.ClientSession(headers=self._headers) as session:
             async with session.get(url) as resp:
                 if resp.status == 200:
                     text = await resp.read()
-                    text = BeautifulSoup(text, 'lxml')  
+                    text = BeautifulSoup(text, 'lxml')
                     text = text.find_all("tr")
                     result = []
                     for tex in text:
                         result.append(tex.text)
-                    results = result[1:]  
-                    
+                    results = result[1:]
+
                     data = []
                     for res in results:
                         ordered = []
@@ -47,20 +48,20 @@ class Client():
                                 ordered.append(occ)
                         data.append(ordered)
                     return data
-        
+
     async def transform_html(self, text):
         """Makes html readable with BeautifulSoup and returns current track"""
         text = BeautifulSoup(text, 'lxml')
-        text = text.find_all("p", {"name":"np-element"})
+        text = text.find_all("p", {"name": "np-element"})
         result = []
         for tex in text:
-            if tex.text not in result: # avoid info occurrences
-                if 'by ' in tex.text:  
+            if tex.text not in result:  # avoid info occurrences
+                if 'by ' in tex.text:
                     result.append(tex.text.replace('by ', ''))
                 else:
-                    result.append(tex.text)          
-        return result[1:]    
-        
+                    result.append(tex.text)
+        return result[1:]
+
     async def get_duration(self, text):
         """Gets duration from HTML with BeautifulSoup"""
         text = BeautifulSoup(text, 'lxml')
@@ -71,19 +72,19 @@ class Client():
         """Returns diff between current time and when the song started"""
         text = BeautifulSoup(text, 'lxml')
         text = text.find(id="time")
-        time = current_time() - (int(text.attrs['time'])/1000) # ms in html whereas time() is in s
-        time -= 25 # don't know why but it always gives about 30 secs before the song started
+        time = current_time() - (int(text.attrs['time'])/1000)  # ms in html whereas time() is in s
+        time -= 25  # don't know why but it always gives about 30 secs before the song started
         return time
-            
+
     async def get_current_song(self):
         """Fonct to get the current song only"""
         if self.run:
-            return self.now_playing 
+            return self.now_playing
         song = await self.get_current_track()
         return song[0]
 
-    async def get_current_track(self):
-        """Gets the current track informations"""    
+    async def get_current_track(self, handler=False):
+        """Gets the current track informations"""
         async with aiohttp.ClientSession(headers=self._headers) as session:
             async with session.get(self.url) as resp:
                 if resp.status == 200:
@@ -92,22 +93,27 @@ class Client():
                     sync = await self.is_not_sync(text)
                     data = await self.transform_html(text)
                     return data, duration, sync
+                else:
+                    if handler:
+                        await asyncio.sleep(60)  # Useless to spam requests if website is down
+                    else:
+                        return None
 
     async def start(self):
         while self.run:
             if self.handler:
-                current, duration, sync = await self.get_current_track()
-                if current != self.now_playing: # ignore if we already have the info
-                    self.now_playing = current 
+                current, duration, sync = await self.get_current_track(True)
+                if current != self.now_playing:  # ignore if we already have the info
+                    self.now_playing = current
                     await self.handler(current)
-                    time = min((duration/1000), 600) # can't be more than 10 mins, I think
+                    time = min((duration/1000), 600)  # can't be more than 10 mins, I think
                     if sync > 0:
-                        time -= sync # re-sync if needed
+                        time -= sync  # re-sync if needed
                     await asyncio.sleep(time)
                 else:
-                    await asyncio.sleep(1) # get info every sec until we are sync with songs durations etc... 
+                    await asyncio.sleep(1)  # get info every sec until we are sync with songs durations etc...
             else:
-                raise RuntimeError("No function handler specified")    
+                raise RuntimeError("No function handler specified")
 
             # I don't even know if using a aiohttp.get loop is a good idea
             # I tried to use websocket and socket.io, in vain. (lack of skills/knowledges ?)
