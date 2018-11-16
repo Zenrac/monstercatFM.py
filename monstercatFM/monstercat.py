@@ -130,7 +130,3 @@ class Client():
         """Switch on or off the handler loop, returns current state"""
         self.run = not self.run
         return self.runimport aiohttp
-import asyncio
-
-from time import time as current_time
-from bs4 import BeautifulSoup
