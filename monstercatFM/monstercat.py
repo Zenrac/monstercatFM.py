@@ -16,8 +16,8 @@ class Client():
         self._loop = loop or asyncio.get_event_loop()
         self.now_playing = None
         self.run = False
+        self.tries = 1
         self.session = aiosession if aiosession else aiohttp.ClientSession(loop=self._loop)
-
 
     @property
     def loop(self) -> asyncio.AbstractEventLoop:
@@ -86,7 +86,7 @@ class Client():
 
     async def get_current_track(self, handler=False):
         """Gets the current track informations"""
-        async with self.session.get(self.url, headers=self._headers) as resp:
+        async with session.get(self.url, headers=self._headers) as resp:
             if resp.status == 200:
                 text = await resp.read()
                 duration = await self.get_duration(text)
@@ -104,6 +104,7 @@ class Client():
             if self.handler:
                 current, duration, sync = await self.get_current_track(True)
                 if current != self.now_playing:  # ignore if we already have the info
+                    self.tries = 1
                     self.now_playing = current
                     await self.handler(current)
                     time = min((duration/1000), 600)  # can't be more than 10 mins, I think
@@ -111,7 +112,9 @@ class Client():
                         time -= sync  # re-sync if needed
                     await asyncio.sleep(time)
                 else:
-                    await asyncio.sleep(1)  # get info every sec until we are sync with songs durations etc...
+                    self.tries += 1  # stupid counter to avoid spam when MC bot is down.
+                    time = min(self.tries, 60)  # 1 request/min min after 60 fails
+                    await asyncio.sleep(time)  # get info every sec until we are sync with songs durations etc...
             else:
                 raise RuntimeError("No function handler specified")
 
@@ -126,4 +129,8 @@ class Client():
     def switch_on_off(self):
         """Switch on or off the handler loop, returns current state"""
         self.run = not self.run
-        return self.run
+        return self.runimport aiohttp
+import asyncio
+
+from time import time as current_time
+from bs4 import BeautifulSoup
