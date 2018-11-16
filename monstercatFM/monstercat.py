@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 
 class Client():
-    def __init__(self, loop=None):
+    def __init__(self, loop=None, aiosession=None):
         self._headers = {
             "User-Agent": "monstercatFM (https://github.com/Zenrac/monstercatFM)",
             "Content-Type": "application/json",
@@ -16,7 +16,8 @@ class Client():
         self._loop = loop or asyncio.get_event_loop()
         self.now_playing = None
         self.run = False
-        self.tries = 1
+        self.session = aiosession if aiosession else aiohttp.ClientSession(loop=self._loop)
+
 
     @property
     def loop(self) -> asyncio.AbstractEventLoop:
@@ -29,26 +30,25 @@ class Client():
         else:
             url = self.url
 
-        async with aiohttp.ClientSession(headers=self._headers) as session:
-            async with session.get(url) as resp:
-                if resp.status == 200:
-                    text = await resp.read()
-                    text = BeautifulSoup(text, 'lxml')
-                    text = text.find_all("tr")
-                    result = []
-                    for tex in text:
-                        result.append(tex.text)
-                    results = result[1:]
+        async with self.session.get(url, headers=self._headers) as resp:
+            if resp.status == 200:
+                text = await resp.read()
+                text = BeautifulSoup(text, 'lxml')
+                text = text.find_all("tr")
+                result = []
+                for tex in text:
+                    result.append(tex.text)
+                results = result[1:]
 
-                    data = []
-                    for res in results:
-                        ordered = []
-                        occs = res.split('\n')
-                        for occ in occs:
-                            if occ and ('http' not in occ and not occ[1:2].isdigit()):
-                                ordered.append(occ)
-                        data.append(ordered)
-                    return data
+                data = []
+                for res in results:
+                    ordered = []
+                    occs = res.split('\n')
+                    for occ in occs:
+                        if occ and ('http' not in occ and not occ[1:2].isdigit()):
+                            ordered.append(occ)
+                    data.append(ordered)
+                return data
 
     async def transform_html(self, text):
         """Makes html readable with BeautifulSoup and returns current track"""
@@ -86,26 +86,24 @@ class Client():
 
     async def get_current_track(self, handler=False):
         """Gets the current track informations"""
-        async with aiohttp.ClientSession(headers=self._headers) as session:
-            async with session.get(self.url) as resp:
-                if resp.status == 200:
-                    text = await resp.read()
-                    duration = await self.get_duration(text)
-                    sync = await self.is_not_sync(text)
-                    data = await self.transform_html(text)
-                    return data, duration, sync
+        async with self.session.get(self.url, headers=self._headers) as resp:
+            if resp.status == 200:
+                text = await resp.read()
+                duration = await self.get_duration(text)
+                sync = await self.is_not_sync(text)
+                data = await self.transform_html(text)
+                return data, duration, sync
+            else:
+                if handler:
+                    await asyncio.sleep(60)  # Useless to spam requests if website is down
                 else:
-                    if handler:
-                        await asyncio.sleep(60)  # Useless to spam requests if website is down
-                    else:
-                        return None
+                    return None
 
     async def start(self):
         while self.run:
             if self.handler:
                 current, duration, sync = await self.get_current_track(True)
                 if current != self.now_playing:  # ignore if we already have the info
-                    self.tries = 1
                     self.now_playing = current
                     await self.handler(current)
                     time = min((duration/1000), 600)  # can't be more than 10 mins, I think
@@ -113,9 +111,7 @@ class Client():
                         time -= sync  # re-sync if needed
                     await asyncio.sleep(time)
                 else:
-                    self.tries += 1  # stupid counter to avoid spam when MC bot is down.
-                    time = min(self.tries, 60)  # 1 request/min min after 60 fails
-                    await asyncio.sleep(time)  # get info every sec until we are sync with songs durations etc...
+                    await asyncio.sleep(1)  # get info every sec until we are sync with songs durations etc...
             else:
                 raise RuntimeError("No function handler specified")
 
