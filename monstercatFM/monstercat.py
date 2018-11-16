@@ -86,7 +86,7 @@ class Client():
 
     async def get_current_track(self, handler=False):
         """Gets the current track informations"""
-        async with session.get(self.url, headers=self._headers) as resp:
+        async with self.session.get(self.url, headers=self._headers) as resp:
             if resp.status == 200:
                 text = await resp.read()
                 duration = await self.get_duration(text)
