@@ -129,4 +129,4 @@ class Client():
     def switch_on_off(self):
         """Switch on or off the handler loop, returns current state"""
         self.run = not self.run
-        return self.runimport aiohttp
+        return self.run
